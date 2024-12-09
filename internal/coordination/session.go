@@ -329,7 +329,13 @@ func (s *session) mainLoop(ctx context.Context, path string, sessionStartedChan 
 				break
 			}
 			if streamCtx.Err() != nil {
-				// Reconnect if an error occurred during the start session conversation.
+				// Reconnect if an error occurred during the start session conversation. Waiting for some time before
+				// trying to reconnect.
+				select {
+				case <-time.After(s.sessionReconnectDelay):
+				case <-s.ctx.Done():
+				}
+
 				break
 			}
 
